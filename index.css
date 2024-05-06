@@ -1,0 +1,149 @@
+.loader {
+  background: none repeat scroll 0 0 #fff;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 9999;
+}
+
+.loader .loader_inner {
+  animation: animate 1.5s linear infinite;
+  clip: rect(0, 80px, 80px, 40px);
+  height: 80px;
+  width: 80px;
+  position: absolute;
+  left: calc(50% - 40px);
+  top: calc(50% - 40px);
+}
+@keyframes animate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(220deg);
+  }
+}
+.loader .loader_inner:after {
+  animation: animate2 1.5s ease-in-out infinite;
+  clip: rect(0, 80px, 80px, 40px);
+  content: '';
+  border-radius: 50%;
+  height: 80px;
+  width: 80px;
+  position: absolute;
+}
+@keyframes animate2 {
+  0% {
+    box-shadow: inset #b3dfd8 0 0 0 17px;
+    transform: rotate(-140deg);
+  }
+  50% {
+    box-shadow: inset #b3dfd8 0 0 0 2px;
+  }
+  100% {
+    box-shadow: inset #b3dfd8 0 0 0 17px;
+    transform: rotate(140deg);
+  }
+}
+
+.home_page {
+  list-style-type: none;
+}
+
+#pokemonList {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.item_pokemon {
+  margin: 10px;
+  padding: 10px;
+  width: 100px;
+  height: 25px;
+  background-color: #8df2e9;
+  border: 2px solid #008080;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.item_pokemon:hover {
+  background-color: #5b9d98;
+  border-color: #002626;
+}
+
+.link_pokemon {
+  font-size: 20px;
+  text-decoration: none;
+  color: black;
+}
+
+#content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headline_pokemon {
+  font-size: 60px;
+  margin: 20px;
+}
+
+.name_pokemon {
+  font-size: 50px;
+  margin: 10px;
+}
+
+.img_pokemon {
+  width: 20%;
+}
+
+.hide {
+  display: none;
+}
+
+.active {
+  display: block;
+}
+
+#pagination {
+  display: flex;
+  gap: 10px;
+  padding: 0;
+}
+
+.active_page {
+  display: block;
+}
+
+.active_first_page {
+  display: block;
+  order: 0;
+}
+
+.active_last_page {
+  display: block;
+  order: 2;
+}
+
+.first_point {
+  order: 0;
+  list-style-type: none;
+}
+
+.last_point {
+  order: 2;
+  list-style-type: none;
+}
+
+#buttons_control_pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}

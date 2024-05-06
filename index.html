@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./index.css" />
+    <link />
+    <title>Simple Router</title>
+  </head>
+  <body>
+    <div class="loader">
+      <div class="loader_inner"></div>
+    </div>
+    <ul class="home_page">
+      <li><a href="#/page/1">Home page</a></li>
+    </ul>
+    <div id="search_pokemon">
+      <input />
+      <button id="search_button">Search</button>
+    </div>
+    <div id="content"></div>
+    <div id="buttons_control_pagination">
+      <button id="first_page_pagination"><<</button>
+      <button id="previous_page_pagination"><</button>
+      <ul id="pagination">
+        <li class="first_point">...</li>
+        <li class="last_point">...</li>
+      </ul>
+      <button id="next_page_pagination">></button>
+      <button id="last_page_pagination">>></button>
+    </div>
+    <div id="buttons__control_pokemon">
+      <button id="previous_pokemon">prevpok</button>
+      <button id="next_pokemon">nextpok</button>
+    </div>
+
+    <script>
+      const loader = document.querySelector('.loader');
+      function stopLoader() {
+        loader.style.display = 'none';
+      }
+      function goLoader() {
+        loader.style.display = 'block';
+      }
+
+      const buttonsControlPagination = document.querySelector(
+        '#buttons_control_pagination '
+      );
+      const buttonsControlPokemon = document.querySelector(
+        '#buttons__control_pokemon'
+      );
+
+      function Router() {
+        this.routes = {};
+        this.currentRoute = null;
+      }
+
+      Router.prototype.route = function (path, callback) {
+        this.routes[path] = callback;
+      };
+
+      Router.prototype.navigate = function () {
+        let url = location.hash.slice(1) || '/';
+        let routeFound = false;
+        for (let route in this.routes) {
+          let regexRoute = new RegExp(
+            '^' + route.replace(/:\w+/g, '\\w+').replace(/\*/g, '.*') + '$'
+          );
+          if (regexRoute.test(url)) {
+            this.currentRoute = route;
+            this.routes[route]();
+            routeFound = true;
+            break;
+          }
+        }
+        if (!routeFound) {
+          console.log('Route not found!');
+        }
+      };
+
+      Router.prototype.fetchData = function (url, callback) {
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => callback(data))
+          .catch((error) => {
+            goLoader();
+            document.getElementById(
+              'content'
+            ).innerHTML = `<h2>Pokemon is not found</h2>`;
+            window.location.href = `#/notfound`;
+            setTimeout(stopLoader, 1000);
+          });
+      };
+
+      const router = new Router();
+
+      router.route('/page/:pageNum', function () {
+        const pageNum = parseInt(location.hash.split('/')[2]);
+        const offset = (pageNum - 1) * 20;
+        goLoader();
+        router.fetchData(
+          `https://pokeapi.co/api/v2/pokemon/?limit=20&offset=${offset}`,
+          function (pokemon) {
+            document.getElementById(
+              'content'
+            ).innerHTML = `<ul id="pokemonList"></ul>`;
+            const list = document.querySelector('#pokemonList');
+            function makeList(array) {
+              for (let i = 0; i < array.length; i++) {
+                let li = document.createElement('li');
+                let pokID = array[i].url.split('/')[6];
+                li.innerHTML = `<a class="link_pokemon" href="#/pokemon/${pokID}">${array[i].name}</a>`;
+                list.append(li);
+                li.classList.add('item_pokemon');
+              }
+              stopLoader();
+            }
+            makeList(pokemon.results);
+          }
+        );
+      });
+
+      router.route('/pokemon/*', function () {
+        const pokID = location.hash.split('/')[2];
+        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokID}`;
+
+        router.fetchData(apiUrl, function (pokemon) {
+          goLoader();
+          document.getElementById(
+            'content'
+          ).innerHTML = `<h2 class="headline_pokemon">Pokemon ${pokemon.id}</h2>
+                            <p class="name_pokemon">Name: ${pokemon.name}</p>
+                            <img class="img_pokemon" importance="high" src="${pokemon.sprites.front_default}" alt="${pokemon.name}-image"/>`;
+          const nextPokemon = document.querySelector('#next_pokemon');
+          nextPokemon.addEventListener('click', function () {
+            window.location.href = `#/pokemon/${pokemon.id + 1}`;
+          });
+
+          const prevPokemon = document.querySelector('#previous_pokemon');
+          prevPokemon.addEventListener('click', function () {
+            window.location.href = `#/pokemon/${pokemon.id - 1}`;
+          });
+
+          if (Number(pokID) === 1) {
+            prevPokemon.disabled = true;
+          } else {
+            prevPokemon.disabled = false;
+          }
+          //останнього покемона не задезейблю, оскільки вони ідуть в неправильному порядку
+
+          setTimeout(stopLoader, 1000);
+        });
+      });
+
+      const searchButton = document.querySelector('#search_button');
+      const input = document.querySelector('input');
+      const searchPokemon = document.querySelector('#search_pokemon');
+
+      searchButton.addEventListener('click', function (event) {
+        const pokemon = input.value;
+        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokemon}`;
+
+        router.fetchData(apiUrl, function (pokemon) {
+          goLoader();
+          document.getElementById(
+            'content'
+          ).innerHTML = `<h2 class="headline_pokemon">Pokemon ${pokemon.id}</h2>
+                            <p class="name_pokemon">Name: ${pokemon.name}</p>
+                            <img class="img_pokemon" importance="high" loading="lazy" src="${pokemon.sprites.front_default}" alt="${pokemon.name}-image"/>`;
+
+          window.location.href = `#/pokemon/${pokemon.id}`;
+          setTimeout(stopLoader, 1000);
+        });
+        input.value = '';
+      });
+
+      const previousPagePagination = document.querySelector(
+        '#previous_page_pagination'
+      );
+      const nextPagePagination = document.querySelector(
+        '#next_page_pagination'
+      );
+
+      nextPagePagination.addEventListener('click', function () {
+        let page = location.hash.split('/')[2];
+        window.location.href = `#/page/${Number(page) + 1}`;
+      });
+
+      previousPagePagination.addEventListener('click', function () {
+        let page = location.hash.split('/')[2];
+        window.location.href = `#/page/${Number(page) - 1}`;
+      });
+
+      let pagination = document.querySelector('#pagination');
+      const firstPagePagination = document.querySelector(
+        '#first_page_pagination'
+      );
+      const lastPagePagination = document.querySelector(
+        '#last_page_pagination'
+      );
+
+      function makePagination(router) {
+        router.fetchData(
+          `https://pokeapi.co/api/v2/pokemon/`,
+          function (pokemon) {
+            const firstPoint = document.querySelector('.first_point');
+            const lastPoint = document.querySelector('.last_point');
+
+            pagination.innerHTML = '';
+            pagination.appendChild(firstPoint);
+            pagination.appendChild(lastPoint);
+
+            for (let i = 0; i <= pokemon.count; i += 20) {
+              const pageNum = i / 20 + 1;
+
+              let li = document.createElement('li');
+              let link = document.createElement('a');
+              link.href = `#/page/${pageNum}`;
+              link.textContent = pageNum;
+              li.appendChild(link);
+              pagination.insertBefore(li, lastPoint);
+              li.classList.add('hide');
+            }
+
+            let items = [...pagination.children];
+
+            function showPagination(num) {
+              for (let elem of items) {
+                elem.classList.remove('active');
+              }
+
+              if (num === 1) {
+                items[0].classList.add('hide');
+              } else {
+                items[0].classList.remove('hide');
+              }
+
+              let activePages;
+              if (num > items.length - 5) {
+                items[items.length - 1].classList.add('hide');
+                activePages = items.slice(items.length - 4, items.length - 1);
+              } else if (num > 2 && num < items.length - 5) {
+                items[items.length - 1].classList.remove('hide');
+                activePages = items.slice(num - 1, num + 2);
+              } else if (num === 2) {
+                items[0].classList.add('hide');
+                activePages = items.slice(num - 1, num + 2);
+              } else {
+                items[items.length - 1].classList.remove('hide');
+                activePages = items.slice(num, num + 3);
+              }
+
+              for (let elem of activePages) {
+                elem.classList.add('active');
+              }
+            }
+
+            let pageNumber = Number(location.hash.split('/')[2]);
+            showPagination(pageNumber);
+
+            firstPagePagination.addEventListener('click', function () {
+              window.location.href = `#/page/1`;
+            });
+            lastPagePagination.addEventListener('click', function () {
+              window.location.href = `#/page/${items.length - 2}`;
+            });
+
+            if (pageNumber >= items.length - 2) {
+              nextPagePagination.disabled = true;
+              lastPagePagination.disabled = true;
+            } else {
+              nextPagePagination.disabled = false;
+              lastPagePagination.disabled = false;
+            }
+
+            if (pageNumber <= 1) {
+              previousPagePagination.disabled = true;
+              firstPagePagination.disabled = true;
+            } else {
+              previousPagePagination.disabled = false;
+              firstPagePagination.disabled = false;
+            }
+          }
+        );
+      }
+
+      makePagination(router);
+
+      function showButtons(str) {
+        if (str === 'pokemon') {
+          buttonsControlPagination.style.display = 'none';
+          buttonsControlPokemon.style.display = 'flex';
+        } else if (str === 'page') {
+          buttonsControlPagination.style.display = 'flex';
+          buttonsControlPokemon.style.display = 'none';
+        } else {
+          buttonsControlPagination.style.display = 'none';
+          buttonsControlPokemon.style.display = 'none';
+        }
+      }
+
+      window.addEventListener('DOMContentLoaded', function () {
+        router.navigate();
+        if (window.location.hash !== '#/page/1') {
+          window.location.href = '#/page/1';
+        }
+        firstPagePagination.disabled = true;
+        previousPagePagination.disabled = true;
+        showButtons('page');
+      });
+
+      window.addEventListener('hashchange', function () {
+        router.navigate();
+        let partLink = location.hash.split('/')[1];
+        showButtons(partLink);
+        makePagination(router);
+      });
+      /* 
+      if (!window.location.hash) {
+        window.location.href = '#/page/1';
+      } */
+    </script>
+  </body>
+</html>

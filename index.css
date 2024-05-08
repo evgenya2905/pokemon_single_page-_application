@@ -65,7 +65,8 @@
   margin: 10px;
   padding: 10px;
   width: 100px;
-  height: 25px;
+  height: auto;
+
   background-color: #8df2e9;
   border: 2px solid #008080;
   border-radius: 20px;
@@ -119,16 +120,6 @@
 
 .active_page {
   display: block;
-}
-
-.active_first_page {
-  display: block;
-  order: 0;
-}
-
-.active_last_page {
-  display: block;
-  order: 2;
 }
 
 .first_point {

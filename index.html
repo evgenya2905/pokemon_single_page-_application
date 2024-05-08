@@ -123,9 +123,9 @@
       router.route('/pokemon/*', function () {
         const pokID = location.hash.split('/')[2];
         const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokID}`;
+        goLoader();
 
         router.fetchData(apiUrl, function (pokemon) {
-          goLoader();
           document.getElementById(
             'content'
           ).innerHTML = `<h2 class="headline_pokemon">Pokemon ${pokemon.id}</h2>
@@ -227,6 +227,10 @@
             function showPagination(num) {
               for (let elem of items) {
                 elem.classList.remove('active');
+                if (Number(elem.textContent) === num) {
+                  elem.firstChild.style.textDecoration = 'none';
+                  elem.firstChild.style.fontSize = '1.2rem';
+                }
               }
 
               if (num === 1) {
@@ -236,10 +240,10 @@
               }
 
               let activePages;
-              if (num > items.length - 5) {
+              if (num > items.length - 4) {
                 items[items.length - 1].classList.add('hide');
                 activePages = items.slice(items.length - 4, items.length - 1);
-              } else if (num > 2 && num < items.length - 5) {
+              } else if (num > 2 && num < items.length - 3) {
                 items[items.length - 1].classList.remove('hide');
                 activePages = items.slice(num - 1, num + 2);
               } else if (num === 2) {
@@ -315,7 +319,7 @@
         showButtons(partLink);
         makePagination(router);
       });
-      /* 
+      /*
       if (!window.location.hash) {
         window.location.href = '#/page/1';
       } */

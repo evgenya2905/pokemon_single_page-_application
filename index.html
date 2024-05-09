@@ -12,7 +12,7 @@
       <div class="loader_inner"></div>
     </div>
     <ul class="home_page">
-      <li><a href="#/page/1">Home page</a></li>
+      <li><a href="#/page/1" class="home_page_link">Home page</a></li>
     </ul>
     <div id="search_pokemon">
       <input />
@@ -30,8 +30,8 @@
       <button id="last_page_pagination">>></button>
     </div>
     <div id="buttons__control_pokemon">
-      <button id="previous_pokemon">prevpok</button>
-      <button id="next_pokemon">nextpok</button>
+      <button id="previous_pokemon">prev pokemon</button>
+      <button id="next_pokemon">next pokemon</button>
     </div>
 
     <script>
@@ -39,7 +39,7 @@
       function stopLoader() {
         loader.style.display = 'none';
       }
-      function goLoader() {
+      function startLoader() {
         loader.style.display = 'block';
       }
 
@@ -83,7 +83,7 @@
           .then((response) => response.json())
           .then((data) => callback(data))
           .catch((error) => {
-            goLoader();
+            startLoader();
             document.getElementById(
               'content'
             ).innerHTML = `<h2>Pokemon is not found</h2>`;
@@ -97,7 +97,7 @@
       router.route('/page/:pageNum', function () {
         const pageNum = parseInt(location.hash.split('/')[2]);
         const offset = (pageNum - 1) * 20;
-        goLoader();
+        startLoader();
         router.fetchData(
           `https://pokeapi.co/api/v2/pokemon/?limit=20&offset=${offset}`,
           function (pokemon) {
@@ -123,7 +123,7 @@
       router.route('/pokemon/*', function () {
         const pokID = location.hash.split('/')[2];
         const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokID}`;
-        goLoader();
+        startLoader();
 
         router.fetchData(apiUrl, function (pokemon) {
           document.getElementById(
@@ -161,7 +161,7 @@
         const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokemon}`;
 
         router.fetchData(apiUrl, function (pokemon) {
-          goLoader();
+          startLoader();
           document.getElementById(
             'content'
           ).innerHTML = `<h2 class="headline_pokemon">Pokemon ${pokemon.id}</h2>
@@ -228,8 +228,7 @@
               for (let elem of items) {
                 elem.classList.remove('active');
                 if (Number(elem.textContent) === num) {
-                  elem.firstChild.style.textDecoration = 'none';
-                  elem.firstChild.style.fontSize = '1.2rem';
+                  elem.firstChild.classList.add('main_page_pagination');
                 }
               }
 
@@ -319,10 +318,6 @@
         showButtons(partLink);
         makePagination(router);
       });
-      /*
-      if (!window.location.hash) {
-        window.location.href = '#/page/1';
-      } */
     </script>
   </body>
 </html>

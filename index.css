@@ -50,8 +50,22 @@
   }
 }
 
+a {
+  text-decoration: none;
+}
+
 .home_page {
   list-style-type: none;
+  padding-inline-start: 50px;
+}
+
+.home_page_link {
+  color: black;
+  font-size: 1.2rem;
+}
+
+#search_pokemon {
+  padding-inline-start: 50px;
 }
 
 #pokemonList {
@@ -110,16 +124,26 @@
 
 .active {
   display: block;
+  text-decoration: none;
 }
 
 #pagination {
   display: flex;
   gap: 10px;
   padding: 0;
+  align-items: center;
 }
 
-.active_page {
-  display: block;
+.main_page_pagination {
+  font-size: 1.2rem;
+  border: solid 2px #46e6e6;
+  background-color: #c1ebeb;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+
+  display: inline-block;
+  text-align: center;
 }
 
 .first_point {
@@ -136,5 +160,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
+}
+
+#buttons__control_pokemon {
+  display: flex;
+  justify-content: center;
   gap: 10px;
 }
